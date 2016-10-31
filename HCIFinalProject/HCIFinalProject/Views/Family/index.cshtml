@@ -1,0 +1,50 @@
+﻿@model IEnumerable<HCIFinalProject.Models.Family>
+
+@{
+    ViewBag.Title = "index";
+}
+
+<h2>Families</h2>
+
+@*<p>
+    @Html.ActionLink("Create New", "Create")
+</p>*@
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.familyname)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.city)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.state)
+        </th>
+    </tr>
+    @*<p>
+            Select from @Model.Count()
+            families:
+        </p>*@
+    @*<ul>
+            @foreach (var family in Model)
+                    {
+                <li>@family.familyname @family.city, @family.state</li>
+            }
+        </ul>*@
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.familyname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.city)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.state)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "Details", new { id = item.id }) |
+            </td>
+        </tr>
+    }
