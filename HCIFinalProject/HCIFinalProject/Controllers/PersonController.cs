@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using HCIFinalProject.Models;
 
 namespace HCIFinalProject.Controllers
@@ -32,25 +33,14 @@ namespace HCIFinalProject.Controllers
 
         }
 
-        /**
-         * Session isn't available when the constructor is called.  Therefore, you need
-         * to store the list in the Initialize method.
-         * 
-         * This method checks to see of the peopleList is already in Session.  If not,
-         * it save the list to the session.  If it is already in session the method does nothing.
-         * 
-         * This StackOverflow entry talks about it:
-         * http://stackoverflow.com/questions/18234355/get-an-existing-session-in-my-basecontroller-constructor
-         * 
-         */
-        //protected override void Initialize(RequestContext requestContext)
-        //{
-        //    base.Initialize(requestContext);
-        //    if (Session["peopleList"] == null)
-        //    {
-        //        Session["peopleList"] = people;
-        //    }
-        //}
+        protected override void Initialize(RequestContext requestContext)
+        {
+            base.Initialize(requestContext);
+            if (Session["peopleList"] == null)
+            {
+                Session["peopleList"] = people;
+            }
+        }
 
         // GET: Person
         public ActionResult Index()
@@ -84,9 +74,10 @@ namespace HCIFinalProject.Controllers
         {
             try
             {
+                people = (List<Person>)Session["peopleList"];
                 Person newPerson = new Person()
                 {
-                    id = 99,
+                    id = people.Count(),
                     firstname = collection["firstname"],
                     middlename = collection["middlename"],
                     lastname = collection["lastname"],
@@ -99,6 +90,7 @@ namespace HCIFinalProject.Controllers
                 // Add the person to the list
                 people = (List<Person>)Session["peopleList"];
                 people.Add(newPerson);
+
 
                 // Save the list to the session
                 Session["peopleList"] = people;
@@ -114,7 +106,9 @@ namespace HCIFinalProject.Controllers
         // GET: Person/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var people = (List<Person>)Session["peopleList"];
+            var p = people[id];
+            return View(p);
         }
 
         // POST: Person/Edit/5
@@ -123,20 +117,44 @@ namespace HCIFinalProject.Controllers
         {
             try
             {
-                // TODO: Add update logic here
+                var people = (List<Person>)Session["peopleList"];
+
+                var p = people[id];
+
+                Person newPerson = new Person()
+                {
+                    id = people.Count(),
+                    firstname = collection["firstname"],
+                    middlename = collection["middlename"],
+                    lastname = collection["lastname"],
+                    cell = collection["cell"],
+                    relationship = collection["relationship"],
+                    familyId = int.Parse(collection["familyId"])
+                };
+
+                people.Where(x => x.id == id).First().firstname = collection["firstname"];
+                people.Where(x => x.id == id).First().middlename = collection["middlename"];
+                people.Where(x => x.id == id).First().lastname = collection["lastname"];
+                people.Where(x => x.id == id).First().cell = collection["cell"];
+                people.Where(x => x.id == id).First().relationship = collection["relationship"];
+                people.Where(x => x.id == id).First().familyId = int.Parse(collection["familyId"]);
 
                 return RedirectToAction("Index");
+
             }
             catch
             {
-                return View();
+                return RedirectToAction("Index");
             }
+            
         }
 
         // GET: Person/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var people = (List<Person>)Session["peopleList"];
+            var p = people[id];
+            return View(p);
         }
 
         // POST: Person/Delete/5
@@ -145,8 +163,19 @@ namespace HCIFinalProject.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                // Add the person to the list
+                var people = (List<Person>)Session["peopleList"];
+                var p = people[id];
+                people.Remove(p);
 
+                // Save the list to the session
+                Session["peopleList"] = people;
+
+                for(int x = id; x < people.Count(); x++)
+                {
+                    if (people[x] != null)
+                        people[x].id = x;
+                }
                 return RedirectToAction("Index");
             }
             catch

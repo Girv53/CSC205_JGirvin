@@ -44,5 +44,12 @@ namespace HCIFinalProject.Controllers
 
             return View();
         }
+
+        public ActionResult Edit()
+        {
+            ViewBag.Message = "Every Person in the System";
+
+            return View();
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 using HCIFinalProject.Models;
 
 namespace HCIFinalProject.Controllers
@@ -24,18 +25,32 @@ namespace HCIFinalProject.Controllers
 
         }
 
+        protected override void Initialize(RequestContext requestContext)
+        {
+            base.Initialize(requestContext);
+            if (Session["familyList"] == null)
+            {
+                Session["familyList"] = families;
+            }
+        }
+
         // GET: Family
         public ActionResult Index()
         {
-
-            return View(families);
+            var f = (List<Family>)Session["familyList"];
+            return View(f);
         }
 
         // GET: Family/Details/5
         public ActionResult Details(int id)
         {
-            var f = families[id];
+            // Get the list of people from the session
+            var fList = (List<Family>)Session["familyList"];
 
+            // Get the person with the passed in ID
+            var f = fList[id];
+
+            // Return the person data to the view
             return View(f);
         }
 
@@ -49,22 +64,117 @@ namespace HCIFinalProject.Controllers
         [HttpPost]
         public ActionResult Create(FormCollection collection)
         {
+            try
+            {
+                families = (List<Family>)Session["familyList"];
+                Family newFamily = new Family()
+                {
+                    id = families.Count(),
+                    familyname = collection["familyname"],
+                    address1 = collection["address1"],
+                    city = collection["city"],
+                    state = collection["state"],
+                    zip = collection["zip"],
+                    homephone = collection["homephone"]
+                };
 
-            Family f = new Family() { id = 8, familyname = "Davidson", address1 = "123 Hastings Dr", city = "Cranberry Township", state = "PA", zip = "16066", homephone = "7247797964" };
-            families.Add(f);
+                // Add the person to the list
+                families = (List<Family>)Session["familyList"];
+                families.Add(newFamily);
 
-            //try
-            //{
-            //    // TODO: Add insert logic here
+                // Save the list to the session
+                Session["familyList"] = families;
 
-            //    return RedirectToAction("Index");
-            //}
-            //catch
-            //{
-            //    return View();
-            //}
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        // GET: Family/Edit/5
+        public ActionResult Edit(int id)
+        {
+            var families = (List<Family>)Session["familyList"];
+            var f = families[id];
 
+            // Return the person data to the view
+            return View(f);
+        }
+
+        // POST: Family/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, FormCollection collection)
+        {
+            try
+            {
+                var families = (List<Family>)Session["familyList"];
+
+                var f = families[id];
+
+                Family newFamily = new Family()
+                {
+                    id = families.Count(),
+                    familyname = collection["familyname"],
+                    address1 = collection["address1"],
+                    city = collection["city"],
+                    state = collection["state"],
+                    zip = collection["zip"],
+                    homephone = collection["homephone"]
+                };
+
+                families.Where(x => x.id == id).First().familyname = collection["familyname"];
+                families.Where(x => x.id == id).First().address1 = collection["address1"];
+                families.Where(x => x.id == id).First().city = collection["city"];
+                families.Where(x => x.id == id).First().state = collection["state"];
+                families.Where(x => x.id == id).First().zip = collection["zip"];
+                families.Where(x => x.id == id).First().homephone = collection["homephone"];
+
+
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: Family/Delete/5
+        public ActionResult Delete(int id)
+        {
+            var families = (List<Family>)Session["familyList"];
+            var f = families[id];
+
+            // Return the person data to the view
+            return View(f);
+        }
+
+        // POST: Family/Delete/5
+        [HttpPost]
+        public ActionResult Delete(int id, FormCollection collection)
+        {
+            try
+            {
+                // Add the person to the list
+                var families = (List<Family>)Session["familyList"];
+                var f = families[id];
+                families.Remove(f);
+
+                // Save the list to the session
+                Session["familyList"] = families;
+
+                for (int x = id; x < families.Count(); x++)
+                {
+                    if (families[x] != null)
+                        families[x].id = x;
+                }
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }

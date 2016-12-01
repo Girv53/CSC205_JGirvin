@@ -65,16 +65,6 @@ namespace HCIFinalProject.Models
     public class RegisterViewModel
     {
         [Required]
-        [DataType(DataType.Text)]
-        [Display(Name = "First Name")]
-        public string FirstName { get; set; }
-
-        [Required]
-        [DataType(DataType.Text)]
-        [Display(Name = "Last Name")]
-        public string LastName { get; set; }
-
-        [Required]
         [EmailAddress]
         [Display(Name = "E-Mail")]
         public string Email { get; set; }
